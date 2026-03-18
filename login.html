@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>New Era University - Login</title>
+    <link rel="stylesheet" href="login.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://jbtsirdrynfvwjsuzwlj.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidHNpcmRyeW5mdndqc3V6d2xqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NDk1NjIsImV4cCI6MjA4OTMyNTU2Mn0.CxcXWnCr_zTdYVBLgyx9R83tE0aw352y4mTZTOO2-wY';
+        const { createClient } = supabase;
+        const supabaseClient  = createClient(SUPABASE_URL, SUPABASE_KEY);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="neulogo.png" alt="NEU Logo" class="logo-img">
+            <div class="logo-text">
+                <h3>New Era University</h3>
+                <p>NEU Library</p>
+                <p class="go-admin">
+            Log in to <a href="admin.html">Admin</a>
+        </p>
+            </div>
+        </div>
+        
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="Institutional Email" required>
+             <div class="password-wrapper">
+                <input type="password" id="password" placeholder="Password" required>
+                <span class="toggle-password" onclick="togglePassword()"></span>
+            </div>
+            
+            <div class="options">
+                <label>
+                    <input type="checkbox" id="remember"> Remember me
+                </label>
+                <a href="#" id="forgot">Forgot Password?</a>
+            </div>
+            
+            <button type="submit" id="loginBtn">Login
+                <a href="homepage.html"></a>
+            </button>
+        </form>
+        
+        <div class="divider"></div>
+        
+        <p class="no-account">
+            No account yet? <a href="register.html">Register here</a>
+        </p>
+
+
+        
+        <p id="message"></p>
+    </div>
+    
+    <script src="login.js"></script>
+</body>
+</html>

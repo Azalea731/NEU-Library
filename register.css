@@ -1,0 +1,212 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #1a1a2e;
+    background-image: linear-gradient(#19183B, #708993);
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background: rgb(161, 194, 219, 0.6);
+    padding: 40px;
+    border-radius: 15px;
+    width: 600px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.logo-img {
+    width: 70px;
+}
+
+.logo h3 {
+    color: #000;
+}
+
+.logo p {
+    color: #343434;
+}
+
+.input {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+}
+
+.input label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+    margin-left: 2px;
+}
+
+.input .select-type {
+    margin-bottom: 0;
+}
+
+.input .password-wrapper {
+    margin-bottom: 0;
+}
+
+input:not([type="checkbox"]) {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 0;
+    border: 2px solid #969696;
+    border-radius: 8px;
+    background: #f5f5f8;
+    font-size: 16px;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 40px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+select {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 0;
+    border: 2px solid #969696;
+    border-radius: 8px;
+    background: #f5f5f8;
+    font-size: 16px;
+    color: #555;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23555' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 40px;
+    cursor: pointer;
+}
+
+select option {
+    color: #000;
+}
+
+select option[value=""] {
+    color: #888;
+}
+
+select optgroup {
+    color: #888;
+    font-style: normal;
+    font-size: 13px;
+    font-weight: bold;
+    background: #f0f0f0;
+}
+
+select optgroup option {
+    color: #000;
+    font-size: 15px;
+    font-weight: normal;
+    padding-left: 10px;
+    background: #fff;
+}
+
+.terms-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.terms-wrapper input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    margin-top: 2px;
+    accent-color: #02a450;
+    cursor: pointer;
+}
+
+.terms-wrapper label {
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.terms-wrapper label a {
+    color: blue;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.terms-wrapper label a:hover {
+    text-decoration: underline;
+}
+
+#registerBtn {
+    width: 100%;
+    padding: 15px;
+    background: #02a450;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #fff;
+}
+
+#registerBtn:hover {
+    background: #00b894;
+}
+
+.divider {
+    margin: 25px 0;
+    height: 1px;
+    background: #999;
+}
+
+.have-account {
+    text-align: center;
+    color: black;
+}
+
+.have-account a {
+    color: blue;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#message {
+    margin-top: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.error {
+    color: red;
+}
+
+.success {
+    color: green;
+}

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome - NEU Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://jbtsirdrynfvwjsuzwlj.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidHNpcmRyeW5mdndqc3V6d2xqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NDk1NjIsImV4cCI6MjA4OTMyNTU2Mn0.CxcXWnCr_zTdYVBLgyx9R83tE0aw352y4mTZTOO2-wY';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+    </script>
+    <link rel="stylesheet" href="homepage.css">
+</head>
+<body>
+
+<div class="page" id="checkinView">
+    <div class="card">
+        <img src="neulogo.png" alt="NEU Logo" class="logo-img">
+        <h1 id="greetName">Welcome to NEU Library!</h1>
+        <p class="sub">Library Check-In</p>
+
+        <div class="field">
+            <label>COLLEGE</label>
+            <div class="static-box" id="collegeDisplay">Loading...</div>
+        </div>
+
+        <div class="field">
+            <label>COURSE</label>
+            <div class="select-wrapper">
+                <select id="courseSelect">
+                    <option value="" disabled selected>Select Course</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="field">
+            <label>PURPOSE OF VISIT</label>
+            <div class="select-wrapper">
+                <select id="purposeSelect" onchange="toggleOthers()">
+                    <option value="" disabled selected>Select Purpose</option>
+                    <option value="Book Borrowing">Book Borrowing</option>
+                    <option value="Research / Study">Research / Study</option>
+                    <option value="Internet Access">Internet Access</option>
+                    <option value="Reference Reading">Reference Reading</option>
+                    <option value="Group Study">Group Study</option>
+                    <option value="Book Return">Book Return</option>
+                    <option value="Printing / Scanning">Printing / Scanning</option>
+                    <option value="Others">Others</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="field hidden" id="othersField">
+            <label>PLEASE SPECIFY</label>
+            <input type="text" id="othersText" placeholder="Type your reason...">
+        </div>
+
+        <p id="errorMsg" class="error-msg"></p>
+
+        <div class="btn-row">
+            <button id="submitBtn" class="btn-submit" onclick="submitCheckin()">Submit Visit</button>
+        </div>
+    </div>
+</div>
+
+<div class="page hidden" id="successView">
+    <div class="card">
+        <img src="neulogo.png" alt="NEU Logo" class="logo-img">
+
+        <div class="checkmark">✓</div>
+
+        <h2 class="welcome-title">Welcome to NEU Library!</h2>
+        <p class="welcome-name" id="successName"></p>
+
+        <div class="info-table">
+            <div class="info-row">
+                <span class="info-label">COLLEGE</span>
+                <span class="info-value" id="successCollege"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">COURSE</span>
+                <span class="info-value" id="successCourse"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">PURPOSE</span>
+                <span class="info-value" id="successPurpose"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">DATE & TIME</span>
+                <span class="info-value" id="successDate"></span>
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn-again" onclick="checkInAgain()">Check In Again</button>
+        </div>
+    </div>
+</div>
+
+<button class="btn-logout" onclick="logout()">Logout</button>
+
+<script src="homepage.js"></script>
+</body>
+</html>
