@@ -101,8 +101,10 @@ async function loadProfile(userId) {
         courseSelect.appendChild(opt);
         courseSelect.value = 'N/A';
     }
-}
 
+    const isAdmin = profile.user_type === 'admin';
+    toggleAdminSwitch(isAdmin);
+}
 function toggleOthers() {
     const purpose = document.getElementById('purposeSelect').value;
     document.getElementById('othersField').classList.toggle('hidden', purpose !== 'Others');
@@ -175,12 +177,31 @@ function checkInAgain() {
     document.getElementById('checkinView').classList.remove('hidden');
 }
 
+// Replace the existing switch code with this:
 document.getElementById('userViewSwitch').addEventListener('change', function() {
     if (this.checked) {
+        localStorage.setItem('userViewMode', 'admin');
         window.location.href = 'admin.html';
     }
 });
 
+function toggleAdminSwitch(isAdmin) {
+    const switchContainer = document.querySelector('.user-switch-container');
+    const logoutBtn = document.querySelector('.btn-logout');
+    
+    if (isAdmin) {
+        switchContainer.style.display = 'block';
+        logoutBtn.style.display = 'block';
+        
+        const userViewMode = localStorage.getItem('userViewMode');
+        if (userViewMode === 'admin') {
+            document.getElementById('userViewSwitch').checked = true;
+        }
+    } else {
+        switchContainer.style.display = 'none';
+        logoutBtn.style.display = 'block';
+    }
+}
 async function logout() {
     await supabaseClient.auth.signOut();
     window.location.href = 'index.html';
