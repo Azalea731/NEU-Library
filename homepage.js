@@ -45,35 +45,47 @@ const coursesByCollege = {
 
 let userProfile = null;
 
-document.addEventListener('DOMContentLoaded', async () => {
-
-    const { data: { session } } = await supabaseClient.auth.getSession();
-
-    if (!session) {
-        window.location.href = 'index.html';
-        return;
-    }
-
-    await loadProfile(session.user.id);
-});
-
 async function loadProfile(userId) {
-    const { data: profile } = await supabaseClient
+    const { data: { user } } = await supabaseClient.auth.getUser();
+
+    let { data: profile } = await supabaseClient
         .from('profiles')
         .select('full_name, email, user_type, college')
         .eq('id', userId)
         .single();
 
     if (!profile) {
-        window.location.href = 'index.html';
-        return;
+        const fullName = user.user_metadata?.full_name || user.email;
+        const email = user.email;
+
+        const { error: insertError } = await supabaseClient
+            .from('profiles')
+            .insert({
+                id: userId,
+                full_name: fullName,
+                email: email,
+                user_type: '',
+                college: ''
+            });
+
+        if (!insertError) {
+            profile = {
+                full_name: fullName,
+                email: email,
+                user_type: '',
+                college: ''
+            };
+        } else {
+            window.location.href = 'index.html';
+            return;
+        }
     }
 
     userProfile = profile;
 
     document.getElementById('greetName').textContent = 'Hello, ' + profile.full_name;
 
-    const collegeName = collegeNames[profile.college] || profile.college || '—';
+    const collegeName = collegeNames[profile.college] || 'Please select your college below';
     document.getElementById('collegeDisplay').textContent = collegeName;
 
     const courseSelect = document.getElementById('courseSelect');
