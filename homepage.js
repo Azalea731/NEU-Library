@@ -45,6 +45,24 @@ const coursesByCollege = {
 
 let userProfile = null;
 
+document.addEventListener('DOMContentLoaded', async () => {
+
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (session) {
+        await loadProfile(session.user.id);
+        return;
+    }
+
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+            await loadProfile(session.user.id);
+        } else if (!session) {
+            window.location.href = 'index.html';
+        }
+    });
+});
+
 async function loadProfile(userId) {
     const { data: { user } } = await supabaseClient.auth.getUser();
 
