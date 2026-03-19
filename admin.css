@@ -7,11 +7,7 @@
     --text-light: #010101;
     --border: #e8ecf4;
     --radius: 14px;
-    --blue: #3498db;
-    --orange: #f39c12;
-    --green: #27ae60;
-    --red: #e74c3c;
-}
+    --black: black;
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -399,9 +395,9 @@ tbody tr:hover { background: #f8f9ff; }
     text-transform: capitalize;
 }
 
-.badge-student  { background: #e8f0ff; color: var(--blue); }
-.badge-faculty  { background: #fff4e5; color: var(--orange); }
-.badge-employee { background: #e6fff5; color: var(--green); }
+.badge-student  { background: #e8f0ff; color: var(--black); }
+.badge-faculty  { background: #fff4e5; color: var(--black); }
+.badge-employee { background: #e6fff5; color: var(--black); }
 
 .result-badge {
     background: #19183B;
@@ -411,11 +407,6 @@ tbody tr:hover { background: #f8f9ff; }
     padding: 4px 12px;
     border-radius: 20px;
 }
-
-.accent-blue .stat-label { color: var(--blue); }
-.accent-orange .stat-label { color: var(--orange); }
-.accent-green .stat-label { color: var(--green); }
-.accent-red .stat-label { color: var(--red); }
 
 @media (max-width: 768px) {
     .sidebar { padding: 0 16px; gap: 8px; }
