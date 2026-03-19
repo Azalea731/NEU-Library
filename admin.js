@@ -39,19 +39,16 @@ function showDashboard() {
     applyFilters();
 }
 
-// Show dashboard immediately on load
 window.addEventListener('load', () => {
     showDashboard();
 });
 
-// User view switch functionality
 document.getElementById('userViewSwitch').addEventListener('change', function() {
     if (this.checked) {
-        window.location.href = 'homepage.html'; // Change to your homepage file
+        window.location.href = 'homepage.html'; 
     }
 });
 
-// Logout functionality
 document.getElementById('logoutBtn').addEventListener('click', () => {
     window.location.href = 'index.html';
 });
