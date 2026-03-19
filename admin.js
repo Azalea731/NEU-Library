@@ -1,9 +1,9 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
+<!DOCTYPE html>
+<!-- Your existing HTML -->
+<script>
+// NO import needed - use global supabase from CDN
 const SUPABASE_URL = 'https://jbtsirdrynfvwjsuzwlj.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidHNpcmRyeW5mdndqc3V6d2xqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NDk1NjIsImV4cCI6MjA4OTMyNTU2Mn0.CxcXWnCr_zTdYVBLgyx9R83tE0aw352y4mTZTOO2-wY';
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY); 
 
 let currentUser = null;
 let allVisitors = [];
@@ -66,11 +66,10 @@ function setupEventListeners() {
     elements.resetBtn.addEventListener('click', resetFilters);
     
     elements.viewToggle.addEventListener('change', toggleView);
-    
     elements.logoutBtn.addEventListener('click', logout);
 
-    document.querySelectorAll('.nav-link').forEach(function(link) {
-        link.addEventListener('click', function(e) {
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', e => {
             document.querySelector('.nav-link.active')?.classList.remove('active');
             e.target.classList.add('active');
         });
@@ -78,7 +77,7 @@ function setupEventListeners() {
 }
 
 function handleDateFilterChange() {
-    var value = elements.dateFilter.value;
+    const value = elements.dateFilter.value;
     elements.customFrom.classList.toggle('hidden', value !== 'custom');
     elements.customTo.classList.toggle('hidden', value !== 'custom');
     
@@ -107,19 +106,16 @@ async function loadVisitors() {
         
     } catch (error) {
         console.error('Error loading visitors:', error);
-        showError('Failed to load visitor records');
+        showError('Failed to load visitor records: ' + error.message);
     }
 }
 
 function applyFilters() {
-    filteredVisitors = allVisitors.filter(function(visitor) {
-        var matchesDate = checkDateFilter(visitor.created_at);
-        var matchesReason = !elements.reasonFilter.value || 
-            visitor.reason === elements.reasonFilter.value;
-        var matchesCollege = !elements.collegeFilter.value || 
-            visitor.college === elements.collegeFilter.value;
-        var matchesUserType = !elements.userTypeFilter.value || 
-            visitor.user_type === elements.userTypeFilter.value;
+    filteredVisitors = allVisitors.filter(visitor => {
+        const matchesDate = checkDateFilter(visitor.created_at);
+        const matchesReason = !elements.reasonFilter.value || visitor.reason === elements.reasonFilter.value;
+        const matchesCollege = !elements.collegeFilter.value || visitor.college === elements.collegeFilter.value;
+        const matchesUserType = !elements.userTypeFilter.value || visitor.user_type === elements.userTypeFilter.value;
         
         return matchesDate && matchesReason && matchesCollege && matchesUserType;
     });
@@ -129,37 +125,35 @@ function applyFilters() {
 }
 
 function checkDateFilter(createdAt) {
-    var filter = elements.dateFilter.value;
-    var date = new Date(createdAt);
+    const filter = elements.dateFilter.value;
+    const date = new Date(createdAt);
     
-    if (filter === 'today') {
-        return isToday(date);
-    } else if (filter === 'week') {
-        return isThisWeek(date);
-    } else if (filter === 'month') {
-        return isThisMonth(date);
-    } else if (filter === 'custom') {
-        var from = elements.dateFrom.value ? new Date(elements.dateFrom.value) : null;
-        var to = elements.dateTo.value ? new Date(elements.dateTo.value) : null;
-        return (!from || date >= from) && (!to || date <= to);
-    } else {
-        return true;
+    switch (filter) {
+        case 'today': return isToday(date);
+        case 'week': return isThisWeek(date);
+        case 'month': return isThisMonth(date);
+        case 'custom': {
+            const from = elements.dateFrom.value ? new Date(elements.dateFrom.value) : null;
+            const to = elements.dateTo.value ? new Date(elements.dateTo.value) : null;
+            return (!from || date >= from) && (!to || date <= to);
+        }
+        default: return true;
     }
 }
 
 function isToday(date) {
-    var today = new Date();
+    const today = new Date();
     return date.toDateString() === today.toDateString();
 }
 
 function isThisWeek(date) {
-    var today = new Date();
-    var weekStart = new Date(today.getTime() - today.getDay() * 24 * 60 * 60 * 1000);
+    const today = new Date();
+    const weekStart = new Date(today.getTime() - today.getDay() * 24 * 60 * 60 * 1000);
     return date >= weekStart;
 }
 
 function isThisMonth(date) {
-    var today = new Date();
+    const today = new Date();
     return date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
 }
 
@@ -173,51 +167,38 @@ function renderTable() {
         return;
     }
     
-    var rows = '';
-    for (var i = 0; i < filteredVisitors.length; i++) {
-        var visitor = filteredVisitors[i];
-        rows += '<tr>' +
-            '<td>' + formatDateTime(visitor.created_at) + '</td>' +
-            '<td>' + (visitor.full_name || 'N/A') + '</td>' +
-            '<td>' + (visitor.email || 'N/A') + '</td>' +
-            '<td><span class="badge badge-' + visitor.user_type + '">' + visitor.user_type + '</span></td>' +
-            '<td>' + (visitor.college ? getCollegeName(visitor.college) : 'N/A') + '</td>' +
-            '<td>' + (visitor.course || 'N/A') + '</td>' +
-            '<td>' + (visitor.reason || 'N/A') + '</td>' +
-        '</tr>';
-    }
-    elements.tableBody.innerHTML = rows;
+    elements.tableBody.innerHTML = filteredVisitors.map(visitor => `
+        <tr>
+            <td>${formatDateTime(visitor.created_at)}</td>
+            <td>${visitor.full_name || 'N/A'}</td>
+            <td>${visitor.email || 'N/A'}</td>
+            <td><span class="badge badge-${visitor.user_type}">${visitor.user_type}</span></td>
+            <td>${visitor.college ? getCollegeName(visitor.college) : 'N/A'}</td>
+            <td>${visitor.course || 'N/A'}</td>
+            <td>${visitor.reason || 'N/A'}</td>
+        </tr>
+    `).join('');
 }
 
 function updateStats() {
-    // FIX 3: pass the date object into the helper functions
-    var today = 0;
-    var week = 0;
-    var month = 0;
-
-    for (var i = 0; i < allVisitors.length; i++) {
-        var date = new Date(allVisitors[i].created_at);
-        if (isToday(date)) today++;
-        if (isThisWeek(date)) week++;
-        if (isThisMonth(date)) month++;
-    }
-
-    elements.todayCount.textContent = today;
-    elements.weekCount.textContent = week;
-    elements.monthCount.textContent = month;
+    const todayCount = allVisitors.filter(v => isToday(new Date(v.created_at))).length;
+    const weekCount = allVisitors.filter(v => isThisWeek(new Date(v.created_at))).length;
+    const monthCount = allVisitors.filter(v => isThisMonth(new Date(v.created_at))).length;
+    
+    elements.todayCount.textContent = todayCount;
+    elements.weekCount.textContent = weekCount;
+    elements.monthCount.textContent = monthCount;
     elements.totalCount.textContent = allVisitors.length.toLocaleString();
 }
 
 function updateResultCount() {
-    // FIX 2: was missing backticks (template literal)
-    elements.resultCount.textContent = ${filteredVisitors.length} results;
+    elements.resultCount.textContent = `${filteredVisitors.length} results`;
 }
 
 function updateLastUpdated() {
-    var latest = allVisitors[0];
+    const latest = allVisitors[0];
     if (latest) {
-        // FIX 2: was missing backticks (template literal)
-        elements.lastUpdated.textContent = Last updated: ${formatDateTime(latest.created_at)};
+        elements.lastUpdated.textContent = `Last updated: ${formatDateTime(latest.created_at)}`;
     }
 }
 
@@ -232,7 +213,7 @@ function formatDateTime(dateString) {
 }
 
 function getCollegeName(code) {
-    var colleges = {
+    const colleges = {
         'gr-school': 'MBA',
         's-law': 'M.Ed.',
         'eteeap': 'ETEEAP',
@@ -284,3 +265,4 @@ function showError(message) {
         </tr>
     `;
 }
+</script>
