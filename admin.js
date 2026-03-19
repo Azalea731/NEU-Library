@@ -1,4 +1,3 @@
-<script>
 // NO import needed - use global supabase from CDN
 const SUPABASE_URL = 'https://jbtsirdrynfvwjsuzwlj.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidHNpcmRyeW5mdndqc3V6d2xqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NDk1NjIsImV4cCI6MjA4OTMyNTU2Mn0.CxcXWnCr_zTdYVBLgyx9R83tE0aw352y4mTZTOO2-wY';
@@ -263,4 +262,3 @@ function showError(message) {
         </tr>
     `;
 }
-</script>
