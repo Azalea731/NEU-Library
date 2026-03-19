@@ -3,9 +3,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const { createClient } = supabase;
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const ADMIN_EMAIL    = 'jcesperanza@neu.edu.ph';
-const ADMIN_PASSWORD = 'admin123';
-
 const collegeNames = {
     'gr-school': 'MBA',
     's-law':     'M.Ed.',
@@ -31,6 +28,28 @@ const collegeNames = {
     'crt':       'Respiratory Therapy',
 };
 
+async function init() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('full_name, user_type, email')
+        .eq('id', session.user.id)
+        .single();
+
+    if (!profile || profile.user_type !== 'admin') {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    showDashboard(profile.email);
+}
+
 function showDashboard(email) {
     document.getElementById('loginPage').style.display     = 'none';
     document.getElementById('dashboardPage').style.display = 'block';
@@ -44,71 +63,9 @@ function showDashboard(email) {
     applyFilters();
 }
 
-function showLogin() {
-    document.getElementById('dashboardPage').style.display = 'none';
-    document.getElementById('loginPage').style.display     = 'flex';
-    document.getElementById('loginBtn').disabled           = false;
-    document.getElementById('loginBtn').textContent        = 'Sign In';
-    document.getElementById('adminEmail').value            = '';
-    document.getElementById('adminPassword').value         = '';
-}
-
-window.addEventListener('load', () => {
-    const session = localStorage.getItem('adminSession');
-    if (session) {
-        try {
-            const userData = JSON.parse(session);
-            showDashboard(userData.email);
-        } catch {
-            localStorage.removeItem('adminSession');
-        }
-    }
-});
-
-document.getElementById('loginBtn').addEventListener('click', handleLogin);
-document.getElementById('adminEmail').addEventListener('keydown',    e => { if (e.key === 'Enter') handleLogin(); });
-document.getElementById('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
-
-function handleLogin() {
-    const email    = document.getElementById('adminEmail').value.trim();
-    const password = document.getElementById('adminPassword').value;
-    const emailErr = document.getElementById('emailError');
-    const passErr  = document.getElementById('passwordError');
-    const btn      = document.getElementById('loginBtn');
-
-    emailErr.classList.remove('show');
-    passErr.classList.remove('show');
-
-    if (!email.includes('@')) {
-        emailErr.textContent = 'Please enter a valid email address';
-        emailErr.classList.add('show');
-        return;
-    }
-    if (email !== ADMIN_EMAIL) {
-        emailErr.textContent = 'Invalid email address';
-        emailErr.classList.add('show');
-        return;
-    }
-    if (password !== ADMIN_PASSWORD) {
-        passErr.textContent = 'Invalid password';
-        passErr.classList.add('show');
-        return;
-    }
-
-    btn.disabled    = true;
-    btn.textContent = 'Signing in…';
-
-    localStorage.setItem('adminSession', JSON.stringify({
-        email,
-        loginTime: new Date().toISOString()
-    }));
-
-    setTimeout(() => showDashboard(email), 500);
-}
-
-document.getElementById('logoutBtn').addEventListener('click', () => {
-    localStorage.removeItem('adminSession');
-    showLogin();
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'index.html';
 });
 
 let TS_COL = null;
@@ -121,20 +78,12 @@ async function detectTimestampColumn() {
         .select('*')
         .limit(1);
 
-    if (error) {
-        console.error('Schema probe error:', error.message);
-        TS_COL = 'created_at';
-        return TS_COL;
-    }
-
-    if (!data || data.length === 0) {
+    if (error || !data || data.length === 0) {
         TS_COL = 'created_at';
         return TS_COL;
     }
 
     const keys = Object.keys(data[0]);
-    console.log('visit_logs columns detected:', keys);
-
     for (const candidate of ['created_at', 'inserted_at', 'timestamp', 'visit_date', 'date']) {
         if (keys.includes(candidate)) {
             TS_COL = candidate;
@@ -170,11 +119,9 @@ async function fetchVisits(filters = {}) {
     const { data, error } = await query;
 
     if (error) {
-        console.error('Supabase fetch error:', error.message);
         document.getElementById('tableBody').innerHTML =
             `<tr><td colspan="7" class="empty-row" style="color:var(--red)">
-                Database error: ${error.message}<br>
-                <small>Open browser DevTools (F12) &rarr; Console for details.</small>
+                Database error: ${error.message}
             </td></tr>`;
         document.getElementById('resultCount').textContent = 'Error';
         return [];
@@ -201,7 +148,7 @@ async function loadStats() {
 
     function countIn(from, to) {
         return all.filter(v => {
-            const t = new Date(v[tsCol] || v.created_at || v.inserted_at || v.timestamp);
+            const t = new Date(v[tsCol] || v.created_at);
             return t >= from && t < to;
         }).length;
     }
@@ -279,7 +226,7 @@ async function applyFilters() {
     }
 
     tbody.innerHTML = data.map(v => {
-        const tsVal      = v[TS_COL] || v.created_at || v.inserted_at || v.timestamp || v.visit_date;
+        const tsVal      = v[TS_COL] || v.created_at;
         const date       = tsVal ? new Date(tsVal).toLocaleString('en-PH') : '—';
         const college    = collegeNames[v.college] || v.college || '—';
         const badgeClass = 'badge-' + (v.user_type || '').toLowerCase();
@@ -311,7 +258,7 @@ document.getElementById('exportBtn').addEventListener('click', () => {
 
     const headers = ['Date & Time', 'Full Name', 'Email', 'User Type', 'College', 'Course', 'Reason'];
     const rows = currentData.map(v => {
-        const tsVal = v[TS_COL] || v.created_at || v.inserted_at || v.timestamp;
+        const tsVal = v[TS_COL] || v.created_at;
         return [
             tsVal ? new Date(tsVal).toLocaleString('en-PH') : '—',
             v.full_name  || '',
@@ -323,3 +270,5 @@ document.getElementById('exportBtn').addEventListener('click', () => {
         ];
     });
 });
+
+init();
