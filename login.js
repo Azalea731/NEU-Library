@@ -17,11 +17,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
     supabaseClient.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN' && session) {
-        window.location.href = 'homepage.html';
+            window.location.href = 'homepage.html';
         }
     });
-    
-    async function signInWithGoogle() {
+});
+
+async function signInWithGoogle() {
     const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -32,4 +33,3 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         document.getElementById('message').textContent = 'Google sign in failed: ' + error.message;
     }
 }
-});
