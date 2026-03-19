@@ -29,6 +29,58 @@ const collegeNames = {
 };
 
 async function init() {
+    document.getElementById('loginBtn').addEventListener('click', handleLogin);
+
+async function handleLogin() {
+    const email    = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value;
+    const emailErr = document.getElementById('emailError');
+    const passErr  = document.getElementById('passwordError');
+    const btn      = document.getElementById('loginBtn');
+
+    emailErr.textContent = '';
+    passErr.textContent  = '';
+
+    if (!email) {
+        emailErr.textContent = 'Please enter your email';
+        return;
+    }
+    if (!password) {
+        passErr.textContent = 'Please enter your password';
+        return;
+    }
+
+    btn.disabled    = true;
+    btn.textContent = 'Signing in…';
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+    });
+
+    if (error) {
+        passErr.textContent = 'Login failed: ' + error.message;
+        btn.disabled    = false;
+        btn.textContent = 'Sign In';
+        return;
+    }
+
+    const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('user_type, email')
+        .eq('id', data.user.id)
+        .single();
+
+    if (!profile || profile.user_type !== 'admin') {
+        passErr.textContent = 'Access denied. Admin accounts only.';
+        await supabaseClient.auth.signOut();
+        btn.disabled    = false;
+        btn.textContent = 'Sign In';
+        return;
+    }
+
+    showDashboard(profile.email);
+}
     const { data: { session } } = await supabaseClient.auth.getSession();
 
     if (!session) {
