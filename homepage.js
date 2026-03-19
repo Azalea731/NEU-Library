@@ -46,7 +46,6 @@ const coursesByCollege = {
 let userProfile = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-
     const { data: { session } } = await supabaseClient.auth.getSession();
 
     if (session) {
@@ -57,29 +56,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     supabaseClient.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session) {
             await loadProfile(session.user.id);
-        } else if (!session) {
+        } else if (event === 'SIGNED_OUT') {
             window.location.href = 'index.html';
         }
     });
 });
 
-async function signInWithGoogle() {
-    const { error } = await supabaseClient.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            redirectTo: 'https://Azalea731.github.io/NEU-Library/register.html'
-        }
-    });
-    if (error) {
-        document.getElementById('message').textContent = 'Google sign in failed: ' + error.message;
+async function loadProfile(userId) {
+    const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('full_name, email, user_type, college')
+        .eq('id', userId)
+        .single();
+
+    if (!profile) {
+        window.location.href = 'index.html';
+        return;
     }
-}
 
     userProfile = profile;
 
     document.getElementById('greetName').textContent = 'Hello, ' + profile.full_name;
 
-    const collegeName = collegeNames[profile.college] || 'Please select your college below';
+    const collegeName = collegeNames[profile.college] || 'Please select your college';
     document.getElementById('collegeDisplay').textContent = collegeName;
 
     const courseSelect = document.getElementById('courseSelect');
