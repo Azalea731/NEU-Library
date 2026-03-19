@@ -9,36 +9,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div id="loginPage">
-        <div class="login-container">
-            <div class="login-header">
-                <div class="login-logo">
-                    <img src="neulogo.png" alt="NEU Logo">
-                </div>
-                <h1 class="login-title">NEU Library</h1>
-                <p class="login-subtitle">Admin Dashboard</p>
-                <p class="login-description">Sign in to manage visitor logs</p>
-                <p class="go-login">
-            Log in to <a href="index.html">NEU Library</a> Visitor Log
-        </p>
-            </div>
-
-            <div id="loginForm">
-                <div class="form-group">
-                    <label for="adminEmail">Email Address</label>
-                    <input type="email" id="adminEmail" placeholder="jcesperanza@neu.edu.ph" autocomplete="email">
-                    <div class="error-message" id="emailError"></div>
-                </div>
-                <div class="form-group">
-                    <label for="adminPassword">Password</label>
-                    <input type="password" id="adminPassword" placeholder="Enter your password" autocomplete="current-password">
-                    <div class="error-message" id="passwordError"></div>
-                </div>
-                <button type="button" class="login-btn" id="loginBtn">Sign In</button>
-            </div>
-
-        </div>
-    </div>
     <div id="dashboardPage">
         <div class="layout">
 
@@ -174,7 +144,8 @@
                         </div>
                         <div class="filter-btns">
                             <button type="button" class="btn-apply" id="applyBtn">Apply Filters</button>
-                            <button type="button" class="btn-reset"  id="resetBtn">Reset</button>
+                            <button type="button" class="btn-reset" id="resetBtn">Reset</button>
+                        </div>
                     </div>
                 </div>
 
