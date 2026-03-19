@@ -7,7 +7,7 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
     background: #1a1a2e;
-    background-image: linear-gradient(rgba(25, 24, 59, 0.8), rgba(112, 137, 147, 0.8)), url(neu.jpg);
+    background-image: linear-gradient(#19183B, #708993);
     background-size: cover;;
     color: #fff;
     display: flex;
@@ -128,24 +128,24 @@ select option {
 input[type="text"] {
     width: 100%;
     padding: 14px 16px;
-    background: white;
+    background: rgba(255,255,255,0.15);
     border: 1px solid rgba(255,255,255,0.2);
     border-radius: 12px;
     font-family: 'DM Sans', sans-serif;
     font-size: 0.95em;
-    color: black;
+    color: white;
     outline: none;
     transition: background 0.2s;
 }
 
-input[type="text"]::placeholder { color: black; }
+input[type="text"]::placeholder { color: rgb(69, 69, 69); }
 input[type="text"]:focus {
-    background: white;
+    background: rgba(255,255,255,0.22);
     border-color: rgba(255,255,255,0.4);
 }
 
 .error-msg {
-    color: black;
+    color: #ff8080;
     font-size: 0.85em;
     text-align: center;
     margin-bottom: 10px;
@@ -240,6 +240,7 @@ input[type="text"]:focus {
     margin-bottom: 28px;
 }
 
+/* Info table */
 .info-table {
     margin-bottom: 28px;
 }
@@ -269,4 +270,65 @@ input[type="text"]:focus {
     color: black;
     font-weight: 500;
     text-align: right;
+}
+
+.user-switch-container {
+    position: fixed;
+    top: 30px;
+    right: 150px;
+    z-index: 999;
+    margin: 0 12px;
+    flex: 1;
+    max-width: 140px;
+}
+
+.user-switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    position: relative;
+}
+
+.user-switch input {
+    display: none;
+}
+
+.switch-slider {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.switch-slider::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.user-switch input:checked + .switch-slider {
+    background: rgba(46, 204, 113, 0.4);
+}
+
+.user-switch input:checked + .switch-slider::before {
+    transform: translateX(20px);
+    background: #2ecc71;
+}
+
+.switch-label {
+    font-size: 0.8em;
+    color: rgba(255,255,255,0.8);
+    font-weight: 500;
+    white-space: nowrap;
 }
