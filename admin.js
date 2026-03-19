@@ -3,9 +3,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const { createClient } = supabase;
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const ADMIN_EMAIL    = 'jcesperanza@neu.edu.ph';
-const ADMIN_PASSWORD = 'admin123';
-
 const collegeNames = {
     'gr-school': 'MBA',
     's-law':     'M.Ed.',
@@ -31,10 +28,9 @@ const collegeNames = {
     'crt':       'Respiratory Therapy',
 };
 
-function showDashboard(email) {
-    document.getElementById('loginPage').style.display     = 'none';
+function showDashboard() {
     document.getElementById('dashboardPage').style.display = 'block';
-    document.getElementById('sidebarEmail').textContent    = email;
+    document.getElementById('sidebarEmail').textContent    = 'Admin';
     document.getElementById('lastUpdated').textContent     =
         'Last updated: ' + new Date().toLocaleString('en-PH', {
             weekday: 'long', year: 'numeric', month: 'long',
@@ -44,71 +40,13 @@ function showDashboard(email) {
     applyFilters();
 }
 
-function showLogin() {
-    document.getElementById('dashboardPage').style.display = 'none';
-    document.getElementById('loginPage').style.display     = 'flex';
-    document.getElementById('loginBtn').disabled           = false;
-    document.getElementById('loginBtn').textContent        = 'Sign In';
-    document.getElementById('adminEmail').value            = '';
-    document.getElementById('adminPassword').value         = '';
-}
-
 window.addEventListener('load', () => {
-    const session = localStorage.getItem('adminSession');
-    if (session) {
-        try {
-            const userData = JSON.parse(session);
-            showDashboard(userData.email);
-        } catch {
-            localStorage.removeItem('adminSession');
-        }
-    }
+    showDashboard();
 });
 
-document.getElementById('loginBtn').addEventListener('click', handleLogin);
-document.getElementById('adminEmail').addEventListener('keydown',    e => { if (e.key === 'Enter') handleLogin(); });
-document.getElementById('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
-
-function handleLogin() {
-    const email    = document.getElementById('adminEmail').value.trim();
-    const password = document.getElementById('adminPassword').value;
-    const emailErr = document.getElementById('emailError');
-    const passErr  = document.getElementById('passwordError');
-    const btn      = document.getElementById('loginBtn');
-
-    emailErr.classList.remove('show');
-    passErr.classList.remove('show');
-
-    if (!email.includes('@')) {
-        emailErr.textContent = 'Please enter a valid email address';
-        emailErr.classList.add('show');
-        return;
-    }
-    if (email !== ADMIN_EMAIL) {
-        emailErr.textContent = 'Invalid email address';
-        emailErr.classList.add('show');
-        return;
-    }
-    if (password !== ADMIN_PASSWORD) {
-        passErr.textContent = 'Invalid password';
-        passErr.classList.add('show');
-        return;
-    }
-
-    btn.disabled    = true;
-    btn.textContent = 'Signing in…';
-
-    localStorage.setItem('adminSession', JSON.stringify({
-        email,
-        loginTime: new Date().toISOString()
-    }));
-
-    setTimeout(() => showDashboard(email), 500);
-}
-
 document.getElementById('logoutBtn').addEventListener('click', () => {
-    localStorage.removeItem('adminSession');
-    showLogin();
+    // Optional: Add refresh or redirect here if needed
+    location.reload();
 });
 
 let TS_COL = null;
