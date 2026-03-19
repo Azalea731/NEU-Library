@@ -50,6 +50,6 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     message.className = 'success';
 
     setTimeout(() => {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     }, 2000);
 });
