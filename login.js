@@ -26,7 +26,7 @@ async function signInWithGoogle() {
     const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: 'https://Azalea731.github.io/NEU-Library/homepage.html'
+            redirectTo: 'https://Azalea731.github.io/NEU-Library/register.html'
         }
     });
     if (error) {
