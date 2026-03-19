@@ -1,13 +1,9 @@
-
-Cristina
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 const SUPABASE_URL = 'https://jbtsirdrynfvwjsuzwlj.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidHNpcmRyeW5mdndqc3V6d2xqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NDk1NjIsImV4cCI6MjA4OTMyNTU2Mn0.CxcXWnCr_zTdYVBLgyx9R83tE0aw352y4mTZTOO2-wY';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY); // FIX 1: was supabase.createClient
-
-
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY); 
 
 let currentUser = null;
 let allVisitors = [];
