@@ -114,7 +114,6 @@ body {
 .nav-link:hover { background: rgba(255,255,255,0.08); color: white; }
 .nav-link.active { background: rgba(255,255,255,0.14); color: white; }
 
-/* User View Switch Styles */
 .user-switch-container {
     display: flex;
     align-items: center;
