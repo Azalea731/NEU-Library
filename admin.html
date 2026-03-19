@@ -54,6 +54,11 @@
                 </div>
                 <nav class="sidebar-nav">
                     <button class="nav-link active">Dashboard</button>
+                    <span class="toggle-label">User View</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="viewToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
                     <button class="nav-link" id="logoutBtn">Logout</button>
                 </nav>
                 <p class="sidebar-footer" id="sidebarEmail">&#8212;</p>
@@ -67,19 +72,19 @@
                 </div>
 
                 <div class="stats-grid">
-                    <div class="stat-card accent-blue">
+                    <div class="stat-card">
                         <div class="stat-body">
                             <p class="stat-label">Today</p>
                             <h2 class="stat-value" id="todayCount"></h2>
                         </div>
                     </div>
-                    <div class="stat-card accent-orange">
+                    <div class="stat-card">
                         <div class="stat-body">
                             <p class="stat-label">This Week</p>
                             <h2 class="stat-value" id="weekCount"></h2>
                         </div>
                     </div>
-                    <div class="stat-card accent-green">
+                    <div class="stat-card">
                         <div class="stat-body">
                             <p class="stat-label">This Month</p>
                             <h2 class="stat-value" id="monthCount"></h2>
