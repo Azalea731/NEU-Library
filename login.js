@@ -15,9 +15,17 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         return;
     }
 
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-            window.location.href = 'homepage.html';
-        }
-    });
+    const user = data.user;
+
+    const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('user_type')
+        .eq('id', user.id)
+        .single();
+
+    if (profile && profile.user_type === 'admin') {
+        window.location.href = 'choice.html';
+    } else {
+        window.location.href = 'homepage.html';
+    }
 });
