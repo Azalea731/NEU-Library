@@ -99,6 +99,17 @@ async function init() {
     }
 }
 
+document.getElementById('viewToggle').addEventListener('change', function () {
+    if (this.checked) {
+        window.location.href = 'homepage.html';
+    }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'index.html';
+});
+
 function showDashboard(email) {
     document.getElementById('loginPage').style.display     = 'none';
     document.getElementById('dashboardPage').style.display = 'block';
