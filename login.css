@@ -7,7 +7,7 @@
 body {
     font-family: Arial, sans-serif;
     background: #1a1a2e;
-    background-image: linear-gradient(#19183B, #708993);
+    background-image: url(neu.jpg), linear-gradient(#19183B, #708993);
     background-size: cover;;
     color: #fff;
     display: flex;
