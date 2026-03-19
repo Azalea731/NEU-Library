@@ -20,4 +20,16 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         window.location.href = 'homepage.html';
         }
     });
+    
+    async function signInWithGoogle() {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: 'https://Azalea731.github.io/NEU-Library/homepage.html'
+        }
+    });
+    if (error) {
+        document.getElementById('message').textContent = 'Google sign in failed: ' + error.message;
+    }
+}
 });
