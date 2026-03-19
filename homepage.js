@@ -63,41 +63,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-async function loadProfile(userId) {
-    const { data: { user } } = await supabaseClient.auth.getUser();
-
-    let { data: profile } = await supabaseClient
-        .from('profiles')
-        .select('full_name, email, user_type, college')
-        .eq('id', userId)
-        .single();
-
-    if (!profile) {
-        const fullName = user.user_metadata?.full_name || user.email;
-        const email = user.email;
-
-        const { error: insertError } = await supabaseClient
-            .from('profiles')
-            .insert({
-                id: userId,
-                full_name: fullName,
-                email: email,
-                user_type: '',
-                college: ''
-            });
-
-        if (!insertError) {
-            profile = {
-                full_name: fullName,
-                email: email,
-                user_type: '',
-                college: ''
-            };
-        } else {
-            window.location.href = 'index.html';
-            return;
+async function signInWithGoogle() {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: 'https://Azalea731.github.io/NEU-Library/register.html'
         }
+    });
+    if (error) {
+        document.getElementById('message').textContent = 'Google sign in failed: ' + error.message;
     }
+}
 
     userProfile = profile;
 
