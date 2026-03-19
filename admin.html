@@ -9,177 +9,208 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div id="dashboardPage">
-        <div class="layout">
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <div class="sidebar-logo">
+    <div id="loginPage">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-logo">
                     <img src="neulogo.png" alt="NEU Logo">
                 </div>
-                <div>
-                    <p class="brand-name">NEU Library</p>
-                    <p class="brand-role">Admin Panel</p>
-                </div>
-            </div>
-            <nav class="sidebar-nav">
-                <button class="nav-link active">Dashboard</button>
-                <span class="toggle-label">User View</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="viewToggle">
-                    <span class="toggle-slider"></span>
-                </label>
-                <button class="nav-link" id="logoutBtn">Logout</button>
-            </nav>
-            <p class="sidebar-footer" id="sidebarEmail">&#8212;</p>
-        </aside>
-
-        <main class="main">
-
-            <div class="topbar">
-                <h1 class="page-title">Visitor Dashboard</h1>
-                <p class="page-sub" id="lastUpdated">&#8212;</p>
+                <h1 class="login-title">NEU Library</h1>
+                <p class="login-subtitle">Admin Dashboard</p>
+                <p class="login-description">Sign in to manage visitor logs</p>
+                <p class="go-login">
+            Log in to <a href="login.html">NEU Library</a> Visitor Log
+        </p>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-body">
-                        <p class="stat-label">Today</p>
-                        <h2 class="stat-value" id="todayCount"></h2>
-                    </div>
+            <div id="loginForm">
+                <div class="form-group">
+                    <label for="adminEmail">Email Address</label>
+                    <input type="email" id="adminEmail" placeholder="jcesperanza@neu.edu.ph" autocomplete="email">
+                    <div class="error-message" id="emailError"></div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-body">
-                        <p class="stat-label">This Week</p>
-                        <h2 class="stat-value" id="weekCount"></h2>
-                    </div>
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" placeholder="Enter your password" autocomplete="current-password">
+                    <div class="error-message" id="passwordError"></div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-body">
-                        <p class="stat-label">This Month</p>
-                        <h2 class="stat-value" id="monthCount"></h2>
-                    </div>
-                </div>
-                <div class="stat-card accent-red">
-                    <div class="stat-body">
-                        <p class="stat-label">All Time</p>
-                        <h2 class="stat-value" id="totalCount"></h2>
-                    </div>
-                </div>
+                <button type="button" class="login-btn" id="loginBtn">Sign In</button>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">
-                    <h3 class="panel-title">Filter Visitors</h3>
-                </div>
-                <div class="filters-grid">
-                    <div class="filter-field">
-                        <label>Date Range</label>
-                        <select id="dateFilter">
-                            <option value="all" selected>All Time</option>
-                            <option value="today">Today</option>
-                            <option value="week">This Week</option>
-                            <option value="month">This Month</option>
-                            <option value="custom">Custom Range</option>
-                        </select>
-                    </div>
-                    <div class="filter-field hidden" id="customFrom">
-                        <label>From</label>
-                        <input type="date" id="dateFrom">
-                    </div>
-                    <div class="filter-field hidden" id="customTo">
-                        <label>To</label>
-                        <input type="date" id="dateTo">
-                    </div>
-                    <div class="filter-field">
-                        <label>Reason</label>
-                        <select id="reasonFilter">
-                            <option value="">All Reasons</option>
-                            <option value="Research / Study">Research / Study</option>
-                            <option value="Book Borrowing">Book Borrowing</option>
-                            <option value="Book Return">Book Return</option>
-                            <option value="Internet Access">Internet Access</option>
-                            <option value="Group Study">Group Study</option>
-                            <option value="Reference Reading">Reference Reading</option>
-                            <option value="Printing / Scanning">Printing / Scanning</option>
-                            <option value="Others">Others</option>
-                        </select>
-                    </div>
-                    <div class="filter-field">
-                        <label>College</label>
-                        <select id="collegeFilter">
-                            <option value="">All Colleges</option>
-                            <option value="gr-school">MBA</option>
-                            <option value="s-law">M.Ed.</option>
-                            <option value="eteeap">ETEEAP</option>
-                            <option value="tesda">Alt. Learning System</option>
-                            <option value="cir">Int'l Relations</option>
-                            <option value="intr">Integrated School</option>
-                            <option value="ca">Accountancy</option>
-                            <option value="cas">Arts and Sciences</option>
-                            <option value="cag">Agriculture</option>
-                            <option value="cba">Business Administration</option>
-                            <option value="ccom">Communication</option>
-                            <option value="ccrim">Criminology</option>
-                            <option value="ced">Education</option>
-                            <option value="cea">Engineering &amp; Architecture</option>
-                            <option value="cics">Informatics &amp; Computing (CICS)</option>
-                            <option value="cm">Medicine</option>
-                            <option value="cmt">Medical Technology</option>
-                            <option value="cmid">Midwifery</option>
-                            <option value="cmus">Music</option>
-                            <option value="cn">Nursing</option>
-                            <option value="cpt">Physical Therapy</option>
-                            <option value="crt">Respiratory Therapy</option>
-                        </select>
-                    </div>
-                    <div class="filter-field">
-                        <label>User Type</label>
-                        <select id="userTypeFilter">
-                            <option value="">All Types</option>
-                            <option value="student">Student</option>
-                            <option value="faculty">Faculty</option>
-                            <option value="employee">Employee</option>
-                        </select>
-                    </div>
-                    <div class="filter-btns">
-                        <button type="button" class="btn-apply" id="applyBtn">Apply Filters</button>
-                        <button type="button" class="btn-reset" id="resetBtn">Reset</button>
-                    </div>
-                </div>
+            <div class="info-box">
+                <strong>Admin Credentials:</strong>
+                Email: jcesperanza@neu.edu.ph<br>
+                Password: admin123
             </div>
 
-            <div class="panel">
-                <div class="panel-header">
-                    <h3 class="panel-title">Visitor Records</h3>
-                    <span class="result-badge" id="resultCount">Loading&#8230;</span>
-                </div>
-                <div class="table-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Date &amp; Time</th>
-                                <th>Full Name</th>
-                                <th>Email</th>
-                                <th>User Type</th>
-                                <th>College</th>
-                                <th>Course</th>
-                                <th>Reason</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            <tr class="loading-row">
-                                <td colspan="7">Loading records&#8230;</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </main>
+        </div>
     </div>
-</div>
+    <div id="dashboardPage">
+        <div class="layout">
 
-<script src="admin.js"></script>
+            <aside class="sidebar">
+                <div class="sidebar-brand">
+                    <div class="sidebar-logo">
+                        <img src="neulogo.png" alt="NEU Logo">
+                    </div>
+                    <div>
+                        <p class="brand-name">NEU Library</p>
+                        <p class="brand-role">Admin Panel</p>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <button class="nav-link active">Dashboard</button>
+                    <button class="nav-link" id="logoutBtn">Logout</button>
+                </nav>
+                <p class="sidebar-footer" id="sidebarEmail">&#8212;</p>
+            </aside>
+
+            <main class="main">
+
+                <div class="topbar">
+                    <h1 class="page-title">Visitor Dashboard</h1>
+                    <p class="page-sub" id="lastUpdated">&#8212;</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card accent-blue">
+                        <div class="stat-body">
+                            <p class="stat-label">Today</p>
+                            <h2 class="stat-value" id="todayCount"></h2>
+                        </div>
+                    </div>
+                    <div class="stat-card accent-orange">
+                        <div class="stat-body">
+                            <p class="stat-label">This Week</p>
+                            <h2 class="stat-value" id="weekCount"></h2>
+                        </div>
+                    </div>
+                    <div class="stat-card accent-green">
+                        <div class="stat-body">
+                            <p class="stat-label">This Month</p>
+                            <h2 class="stat-value" id="monthCount"></h2>
+                        </div>
+                    </div>
+                    <div class="stat-card accent-red">
+                        <div class="stat-body">
+                            <p class="stat-label">All Time</p>
+                            <h2 class="stat-value" id="totalCount"></h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Filter Visitors</h3>
+                    </div>
+                    <div class="filters-grid">
+                        <div class="filter-field">
+                            <label>Date Range</label>
+                            <select id="dateFilter">
+                                <option value="all" selected>All Time</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                        <div class="filter-field hidden" id="customFrom">
+                            <label>From</label>
+                            <input type="date" id="dateFrom">
+                        </div>
+                        <div class="filter-field hidden" id="customTo">
+                            <label>To</label>
+                            <input type="date" id="dateTo">
+                        </div>
+                        <div class="filter-field">
+                            <label>Reason</label>
+                            <select id="reasonFilter">
+                                <option value="">All Reasons</option>
+                                <option value="Research / Study">Research / Study</option>
+                                <option value="Book Borrowing">Book Borrowing</option>
+                                <option value="Book Return">Book Return</option>
+                                <option value="Internet Access">Internet Access</option>
+                                <option value="Group Study">Group Study</option>
+                                <option value="Reference Reading">Reference Reading</option>
+                                <option value="Printing / Scanning">Printing / Scanning</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+                        <div class="filter-field">
+                            <label>College</label>
+                            <select id="collegeFilter">
+                                <option value="">All Colleges</option>
+                                <option value="gr-school">MBA</option>
+                                <option value="s-law">M.Ed.</option>
+                                <option value="eteeap">ETEEAP</option>
+                                <option value="tesda">Alt. Learning System</option>
+                                <option value="cir">Int'l Relations</option>
+                                <option value="intr">Integrated School</option>
+                                <option value="ca">Accountancy</option>
+                                <option value="cas">Arts and Sciences</option>
+                                <option value="cag">Agriculture</option>
+                                <option value="cba">Business Administration</option>
+                                <option value="ccom">Communication</option>
+                                <option value="ccrim">Criminology</option>
+                                <option value="ced">Education</option>
+                                <option value="cea">Engineering &amp; Architecture</option>
+                                <option value="cics">Informatics &amp; Computing (CICS)</option>
+                                <option value="cm">Medicine</option>
+                                <option value="cmt">Medical Technology</option>
+                                <option value="cmid">Midwifery</option>
+                                <option value="cmus">Music</option>
+                                <option value="cn">Nursing</option>
+                                <option value="cpt">Physical Therapy</option>
+                                <option value="crt">Respiratory Therapy</option>
+                            </select>
+                        </div>
+                        <div class="filter-field">
+                            <label>User Type</label>
+                            <select id="userTypeFilter">
+                                <option value="">All Types</option>
+                                <option value="student">Student</option>
+                                <option value="faculty">Faculty</option>
+                                <option value="employee">Employee</option>
+                            </select>
+                        </div>
+                        <div class="filter-btns">
+                            <button type="button" class="btn-apply" id="applyBtn">Apply Filters</button>
+                            <button type="button" class="btn-reset"  id="resetBtn">Reset</button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Visitor Records</h3>
+                        <span class="result-badge" id="resultCount">Loading&#8230;</span>
+                    </div>
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date &amp; Time</th>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>User Type</th>
+                                    <th>College</th>
+                                    <th>Course</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <tr class="loading-row">
+                                    <td colspan="7">Loading records&#8230;</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
 
 </body>
 </html>
