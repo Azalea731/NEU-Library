@@ -24,8 +24,8 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         .single();
 
     if (profile && profile.user_type === 'admin') {
-        window.location.href = 'choice.html';
-    } else {
-        window.location.href = 'homepage.html';
-    }
+    window.location.href = 'admin.html';
+} else {
+    window.location.href = 'homepage.html';
+}
 });
