@@ -46,19 +46,11 @@ const coursesByCollege = {
 let userProfile = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-    
+
     const { data: { session } } = await supabaseClient.auth.getSession();
 
     if (!session) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const { data: { session: retrySession } } = await supabaseClient.auth.getSession();
-        
-        if (!retrySession) {
-            window.location.href = 'index.html';
-            return;
-        }
-
-        await loadProfile(retrySession.user.id);
+        window.location.href = 'index.html';
         return;
     }
 
