@@ -83,21 +83,24 @@ async function handleLogin() {
     showDashboard(profile.email);
 }
 
-async function init() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-
+// FIXED: replaced init() + getSession() with onAuthStateChange so the
+// session is never missed right after a redirect from login.js
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
     if (!session) return;
 
     const { data: profile } = await supabaseClient
         .from('profiles')
-        .select('full_name, user_type, email')
+        .select('user_type, email')
         .eq('id', session.user.id)
         .single();
 
     if (profile && profile.user_type === 'admin') {
         showDashboard(profile.email);
+    } else {
+        await supabaseClient.auth.signOut();
+        window.location.href = 'index.html';
     }
-}
+});
 
 document.getElementById('viewToggle').addEventListener('change', function () {
     if (this.checked) {
@@ -122,11 +125,6 @@ function showDashboard(email) {
     loadStats();
     applyFilters();
 }
-
-document.getElementById('logoutBtn').addEventListener('click', async () => {
-    await supabaseClient.auth.signOut();
-    window.location.href = 'index.html';
-});
 
 let TS_COL = null;
 
@@ -278,5 +276,3 @@ document.getElementById('exportBtn').addEventListener('click', () => {
         ];
     });
 });
-
-init();
