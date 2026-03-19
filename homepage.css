@@ -133,14 +133,14 @@ input[type="text"] {
     border-radius: 12px;
     font-family: 'DM Sans', sans-serif;
     font-size: 0.95em;
-    color: white;
+    color: black;
     outline: none;
     transition: background 0.2s;
 }
 
 input[type="text"]::placeholder { color: white; }
 input[type="text"]:focus {
-    background: rgba(255,255,255,0.22);
+    background: white;
     border-color: rgba(255,255,255,0.4);
 }
 
