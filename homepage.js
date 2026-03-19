@@ -65,7 +65,7 @@ async function loadProfile(userId) {
         .single();
 
     if (!profile) {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
         return;
     }
 
