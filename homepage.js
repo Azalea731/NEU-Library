@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const { data: { session: retrySession } } = await supabaseClient.auth.getSession();
         
         if (!retrySession) {
-            window.location.href = 'login.html';
+            window.location.href = 'index.html';
             return;
         }
 
