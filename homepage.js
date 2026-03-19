@@ -177,5 +177,5 @@ function checkInAgain() {
 
 async function logout() {
     await supabaseClient.auth.signOut();
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
 }
