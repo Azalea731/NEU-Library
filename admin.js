@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- Your existing HTML -->
 <script>
 // NO import needed - use global supabase from CDN
 const SUPABASE_URL = 'https://jbtsirdrynfvwjsuzwlj.supabase.co';
