@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NEU Library - Choose Role</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://jbtsirdrynfvwjsuzwlj.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidHNpcmRyeW5mdndqc3V6d2xqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NDk1NjIsImV4cCI6MjA4OTMyNTU2Mn0.CxcXWnCr_zTdYVBLgyx9R83tE0aw352y4mTZTOO2-wY';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(#19183B, #708993);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .card {
+            background: rgba(161, 194, 219, 0.6);
+            padding: 50px 40px;
+            border-radius: 15px;
+            width: 500px;
+            text-align: center;
+        }
+        .logo-img { width: 80px; margin-bottom: 20px; }
+        h2 { color: #000; font-size: 24px; margin-bottom: 8px; }
+        p { color: #333; margin-bottom: 30px; font-size: 15px; }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: background 0.3s;
+        }
+        .btn-admin { background: #2d2c5e; color: white; }
+        .btn-admin:hover { background: #1a1a40; }
+        .btn-user { background: white; color: #2d2c5e; border: 2px solid #2d2c5e; }
+        .btn-user:hover { background: #f0f0f0; }
+        .btn-logout { background: transparent; color: #666; font-size: 14px; margin-top: 10px; }
+        .btn-logout:hover { color: #000; }
+        #userName { font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img src="neulogo.png" alt="NEU Logo" class="logo-img">
+        <h2>Welcome, <span id="userName"></span>!</h2>
+        <p>How would you like to proceed today?</p>
+
+        <button class="btn btn-admin" onclick="goAdmin()">
+            Go to Admin Dashboard
+        </button>
+        <button class="btn btn-user" onclick="goUser()">
+            Regular Library Check-in
+        </button>
+        <button class="btn btn-logout" onclick="logout()">
+            Logout
+        </button>
+    </div>
+
+    <script>
+        async function init() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = 'index.html';
+                return;
+            }
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('full_name, user_type')
+                .eq('id', session.user.id)
+                .single();
+
+            if (!profile || profile.user_type !== 'admin') {
+                window.location.href = 'homepage.html';
+                return;
+            }
+            document.getElementById('userName').textContent = profile.full_name;
+        }
+
+        function goAdmin() {
+            window.location.href = 'admin.html';
+        }
+
+        function goUser() {
+            window.location.href = 'homepage.html';
+        }
+
+        async function logout() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        init();
+    </script>
+</body>
+</html>
