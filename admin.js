@@ -99,7 +99,7 @@ async function fetchVisits(filters = {}) {
     const { data, error } = await query;
     if (error) {
         document.getElementById('tableBody').innerHTML =
-            `<tr><td colspan="7" class="empty-row" style="color:var(--red)">Database error: ${error.message}</td></tr>`;
+            `<tr><td colspan="7" class="empty-row" style="color:red">Database error: ${error.message}</td></tr>`;
         document.getElementById('resultCount').textContent = 'Error';
         return [];
     }
@@ -204,20 +204,3 @@ function resetFilters() {
     document.getElementById('customTo').classList.add('hidden');
     applyFilters();
 }
-
-document.getElementById('exportBtn').addEventListener('click', () => {
-    if (!currentData.length) return;
-    const headers = ['Date & Time', 'Full Name', 'Email', 'User Type', 'College', 'Course', 'Reason'];
-    const rows = currentData.map(v => {
-        const tsVal = v[TS_COL] || v.created_at;
-        return [
-            tsVal ? new Date(tsVal).toLocaleString('en-PH') : '—',
-            v.full_name  || '',
-            v.email      || '',
-            v.user_type  || '',
-            collegeNames[v.college] || v.college || '',
-            v.course     || '',
-            v.reason     || ''
-        ];
-    });
-});
