@@ -28,65 +28,12 @@ const collegeNames = {
     'crt':       'Respiratory Therapy',
 };
 
-document.getElementById('loginBtn').addEventListener('click', handleLogin);
-document.getElementById('adminEmail').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
-document.getElementById('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
-
-async function handleLogin() {
-    const email    = document.getElementById('adminEmail').value.trim();
-    const password = document.getElementById('adminPassword').value;
-    const emailErr = document.getElementById('emailError');
-    const passErr  = document.getElementById('passwordError');
-    const btn      = document.getElementById('loginBtn');
-
-    emailErr.textContent = '';
-    passErr.textContent  = '';
-
-    if (!email) {
-        emailErr.textContent = 'Please enter your email';
-        return;
-    }
-    if (!password) {
-        passErr.textContent = 'Please enter your password';
-        return;
-    }
-
-    btn.disabled    = true;
-    btn.textContent = 'Signing in…';
-
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-    });
-
-    if (error) {
-        passErr.textContent = 'Login failed: ' + error.message;
-        btn.disabled    = false;
-        btn.textContent = 'Sign In';
-        return;
-    }
-
-    const { data: profile } = await supabaseClient
-        .from('profiles')
-        .select('user_type, email')
-        .eq('id', data.user.id)
-        .single();
-
-    if (!profile || profile.user_type !== 'admin') {
-        passErr.textContent = 'Access denied. Admin accounts only.';
-        await supabaseClient.auth.signOut();
-        btn.disabled    = false;
-        btn.textContent = 'Sign In';
-        return;
-    }
-
-    showDashboard(profile.email);
-}
-
-// FIXED: replaced init() + getSession() with onAuthStateChange so the
-// session is never missed right after a redirect from login.js
+// On load: check session and verify admin, otherwise boot back to login
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    if (!session) return;
+    if (!session) {
+        window.location.href = 'login.html';
+        return;
+    }
 
     const { data: profile } = await supabaseClient
         .from('profiles')
@@ -98,7 +45,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
         showDashboard(profile.email);
     } else {
         await supabaseClient.auth.signOut();
-        window.location.href = 'index.html';
+        window.location.href = 'login.html';
     }
 });
 
@@ -110,14 +57,12 @@ document.getElementById('viewToggle').addEventListener('change', function () {
 
 document.getElementById('logoutBtn').addEventListener('click', async () => {
     await supabaseClient.auth.signOut();
-    window.location.href = 'index.html';
+    window.location.href = 'login.html';
 });
 
 function showDashboard(email) {
-    document.getElementById('loginPage').style.display     = 'none';
-    document.getElementById('dashboardPage').style.display = 'block';
-    document.getElementById('sidebarEmail').textContent    = email;
-    document.getElementById('lastUpdated').textContent     =
+    document.getElementById('sidebarEmail').textContent = email;
+    document.getElementById('lastUpdated').textContent  =
         'Last updated: ' + new Date().toLocaleString('en-PH', {
             weekday: 'long', year: 'numeric', month: 'long',
             day: 'numeric', hour: '2-digit', minute: '2-digit'
