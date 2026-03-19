@@ -1,21 +1,13 @@
-const SUPABASE_URL = 'https://jbtsirdrynfvwjsuzwlj.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidHNpcmRyeW5mdndqc3V6d2xqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NDk1NjIsImV4cCI6MjA4OTMyNTU2Mn0.CxcXWnCr_zTdYVBLgyx9R83tE0aw352y4mTZTOO2-wY';
+/ Supabase configuration - Replace with your actual credentials
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
-const { createClient } = supabase;
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const collegeNames = {
-    'gr-school': 'MBA', 's-law': 'M.Ed.', 'eteeap': 'ETEEAP', 'tesda': 'Alt. Learning System',
-    'cir': "Int'l Relations", 'intr': 'Integrated School', 'ca': 'Accountancy', 
-    'cas': 'Arts and Sciences', 'cag': 'Agriculture', 'cba': 'Business Administration',
-    'ccom': 'Communication', 'ccrim': 'Criminology', 'ced': 'Education',
-    'cea': 'Engineering & Architecture', 'cics': 'CICS', 'cm': 'Medicine',
-    'cmt': 'Medical Technology', 'cmid': 'Midwifery', 'cmus': 'Music',
-    'cn': 'Nursing', 'cpt': 'Physical Therapy', 'crt': 'Respiratory Therapy'
-};
-
-let TS_COL = null;
-let currentData = [];
+let currentUser = null;
+let allVisitors = [];
+let filteredVisitors = [];
+let currentView = 'admin'; 
 
 const elements = {
     sidebarEmail: document.getElementById('sidebarEmail'),
@@ -37,174 +29,246 @@ const elements = {
     applyBtn: document.getElementById('applyBtn'),
     resetBtn: document.getElementById('resetBtn'),
     viewToggle: document.getElementById('viewToggle'),
-    logoutBtn: document.getElementById('logoutBtn')
+    logoutBtn: document.getElementById('logoutBtn'),
+    dashboardPage: document.getElementById('dashboardPage')
 };
 
-// Auth check
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    if (!session) return window.location.href = 'login.html';
-    
-    try {
-        const { data: profile } = await supabaseClient
-            .from('profiles')
-            .select('user_type, email')
-            .eq('id', session.user.id)
-            .single();
-        
-        if (!profile || profile.user_type !== 'admin') {
-            await supabaseClient.auth.signOut();
-            return window.location.href = 'login.html';
-        }
-        
-        showDashboard(profile.email);
-    } catch (e) {
-        console.error('Auth failed:', e);
-        window.location.href = 'login.html';
-    }
-});
+document.addEventListener('DOMContentLoaded', initApp);
 
-// Event listeners
-elements.viewToggle.addEventListener('change', () => {
-    if (elements.viewToggle.checked) window.location.href = 'homepage.html';
-});
-elements.logoutBtn.addEventListener('click', () => supabaseClient.auth.signOut().then(() => window.location.href = 'login.html'));
-elements.dateFilter.addEventListener('change', handleDateFilterChange);
-elements.applyBtn.addEventListener('click', applyFilters);
-elements.resetBtn.addEventListener('click', resetFilters);
+async function initApp() {
+    await checkAuth();
+    setupEventListeners();
+    loadVisitors();
+}
+
+async function checkAuth() {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    currentUser = session.user;
+    elements.sidebarEmail.textContent = currentUser.email || 'Admin User';
+
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_OUT') {
+            window.location.href = 'login.html';
+        }
+    });
+}
+
+function setupEventListeners() {
+    elements.dateFilter.addEventListener('change', handleDateFilterChange);
+    elements.applyBtn.addEventListener('click', applyFilters);
+    elements.resetBtn.addEventListener('click', resetFilters);
+    
+    elements.viewToggle.addEventListener('change', toggleView);
+    
+    elements.logoutBtn.addEventListener('click', logout);
+
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            document.querySelector('.nav-link.active')?.classList.remove('active');
+            e.target.classList.add('active');
+        });
+    });
+}
 
 function handleDateFilterChange() {
-    const isCustom = elements.dateFilter.value === 'custom';
-    elements.customFrom.classList.toggle('hidden', !isCustom);
-    elements.customTo.classList.toggle('hidden', !isCustom);
-}
-
-function showDashboard(email) {
-    elements.sidebarEmail.textContent = email;
-    elements.lastUpdated.textContent = `Last updated: ${new Date().toLocaleString('en-PH', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    })}`;
-    loadStats();
-    applyFilters();
-}
-
-async function detectTimestampColumn() {
-    if (TS_COL) return TS_COL;
-    try {
-        const { data } = await supabaseClient.from('visit_logs').select('*').limit(1).maybeSingle();
-        if (!data) return TS_COL = 'created_at';
-        
-        const keys = Object.keys(data);
-        const candidates = ['created_at', 'inserted_at', 'timestamp', 'visit_date', 'date'];
-        for (const candidate of candidates) if (keys.includes(candidate)) return TS_COL = candidate;
-        
-        for (const key of keys) {
-            if (data[key] && !isNaN(Date.parse(data[key]))) return TS_COL = key;
-        }
-    } catch (e) { console.warn('TS detect failed:', e); }
-    return TS_COL = 'created_at';
-}
-
-async function fetchVisits(filters = {}) {
-    try {
-        const tsCol = await detectTimestampColumn();
-        let query = supabaseClient.from('visit_logs').select('*').order(tsCol, { ascending: false });
-        
-        if (filters.from) query = query.gte(tsCol, filters.from.toISOString());
-        if (filters.to) query = query.lt(tsCol, filters.to.toISOString());
-        if (filters.reason) query = query.eq('reason', filters.reason);
-        if (filters.college) query = query.eq('college', filters.college);
-        if (filters.userType) query = query.eq('user_type', filters.userType);
-        
-        const { data, error } = await query;
-        if (error) throw error;
-        return data || [];
-    } catch (error) {
-        console.error('Fetch error:', error);
-        showError(`Error: ${error.message}`);
-        return [];
+    const value = elements.dateFilter.value;
+    elements.customFrom.classList.toggle('hidden', value !== 'custom');
+    elements.customTo.classList.toggle('hidden', value !== 'custom');
+    
+    if (value === 'custom') {
+        elements.dateFrom.valueAsDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        elements.dateTo.valueAsDate = new Date();
     }
 }
 
-async function loadStats() {
-    const all = await fetchVisits();
-    const tsCol = TS_COL || 'created_at';
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const tomorrow = new Date(todayStart.getTime() + 86400000);
-    const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
-    const weekEnd = new Date(weekStart.getTime() + 7 * 86400000);
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    
-    const countIn = (from, to) => all.filter(v => {
-        const t = new Date(v[tsCol] || v.created_at);
-        return t >= from && t < to;
-    }).length;
-    
-    elements.todayCount.textContent = countIn(todayStart, tomorrow);
-    elements.weekCount.textContent = countIn(weekStart, weekEnd);
-    elements.monthCount.textContent = countIn(monthStart, monthEnd);
-    elements.totalCount.textContent = all.length.toLocaleString();
+async function loadVisitors() {
+    try {
+        elements.tableBody.innerHTML = '<tr class="loading-row"><td colspan="7">Loading records…</td></tr>';
+        
+        const { data, error } = await supabase
+            .from('visitors')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        allVisitors = data || [];
+        filteredVisitors = [...allVisitors];
+        applyFilters();
+        updateStats();
+        updateLastUpdated();
+        
+    } catch (error) {
+        console.error('Error loading visitors:', error);
+        showError('Failed to load visitor records');
+    }
 }
 
-function getDateRange(filter) {
-    const now = new Date();
-    let from, to;
+function applyFilters() {
+    filteredVisitors = allVisitors.filter(visitor => {
+        const matchesDate = checkDateFilter(visitor.created_at);
+        const matchesReason = !elements.reasonFilter.value || 
+            visitor.reason === elements.reasonFilter.value;
+        const matchesCollege = !elements.collegeFilter.value || 
+            visitor.college === elements.collegeFilter.value;
+        const matchesUserType = !elements.userTypeFilter.value || 
+            visitor.user_type === elements.userTypeFilter.value;
+        
+        return matchesDate && matchesReason && matchesCollege && matchesUserType;
+    });
+    
+    renderTable();
+    updateResultCount();
+}
+
+function checkDateFilter(createdAt) {
+    const filter = elements.dateFilter.value;
+    const date = new Date(createdAt);
+    
     switch (filter) {
         case 'today':
-            from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            to = new Date(from.getTime() + 86400000); break;
+            return isToday(date);
         case 'week':
-            const day = now.getDay();
-            from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + (day === 0 ? -6 : 1));
-            to = new Date(from.getTime() + 7 * 86400000); break;
+            return isThisWeek(date);
         case 'month':
-            from = new Date(now.getFullYear(), now.getMonth(), 1);
-            to = new Date(now.getFullYear(), now.getMonth() + 1, 1); break;
+            return isThisMonth(date);
         case 'custom':
-            const fromVal = elements.dateFrom.value;
-            const toVal = elements.dateTo.value;
-            from = fromVal ? new Date(fromVal) : null;
-            to = toVal ? new Date(new Date(toVal).getTime() + 86400000) : null; break;
+            const from = elements.dateFrom.value ? new Date(elements.dateFrom.value) : null;
+            const to = elements.dateTo.value ? new Date(elements.dateTo.value) : null;
+            return (!from || date >= from) && (!to || date <= to);
+        default:
+            return true;
     }
-    return { from, to };
 }
 
-async function applyFilters() {
-    elements.tableBody.innerHTML = '<tr class="loading-row"><td colspan="7">Loading…</td></tr>';
-    elements.resultCount.textContent = 'Loading…';
-    
-    const dateFilter = elements.dateFilter.value;
-    const filters = {};
-    
-    if (dateFilter !== 'all') {
-        const { from, to } = getDateRange(dateFilter);
-        if (from) filters.from = from;
-        if (to) filters.to = to;
-    }
-    if (elements.reasonFilter.value) filters.reason = elements.reasonFilter.value;
-    if (elements.collegeFilter.value) filters.college = elements.collegeFilter.value;
-    if (elements.userTypeFilter.value) filters.userType = elements.userTypeFilter.value;
-    
-    currentData = await fetchVisits(filters);
-    elements.resultCount.textContent = `${currentData.length} record${currentData.length === 1 ? '' : 's'}`;
-    renderTable();
+function isToday(date) {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+}
+
+function isThisWeek(date) {
+    const today = new Date();
+    const weekStart = new Date(today.getTime() - today.getDay() * 24 * 60 * 60 * 1000);
+    return date >= weekStart;
+}
+
+function isThisMonth(date) {
+    const today = new Date();
+    return date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
 }
 
 function renderTable() {
-    const tbody = elements.tableBody;
-    if (currentData.length === 0) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No records found</td></tr>';
+    if (filteredVisitors.length === 0) {
+        elements.tableBody.innerHTML = `
+            <tr class="empty-row">
+                <td colspan="7">No visitors found matching your filters</td>
+            </tr>
+        `;
         return;
     }
     
-    tbody.innerHTML = currentData.map(v => {
-        const tsVal = v[TS_COL] || v.created_at;
-        const date = tsVal ? new Date(tsVal).toLocaleString('en-PH') : '—';
-        const college = collegeNames[v.college] || v.college || '—';
-        const badgeClass = `badge-${(v.user_type || '').toLowerCase()}`;
-        return `
-            <tr>
-                <td>${date}</td>
-                <td>${v.full_name || '—'}</td>
-                <td>${v.email ||
+    elements.tableBody.innerHTML = filteredVisitors.map(visitor => `
+        <tr>
+            <td>${formatDateTime(visitor.created_at)}</td>
+            <td>${visitor.full_name || 'N/A'}</td>
+            <td>${visitor.email || 'N/A'}</td>
+            <td><span class="badge badge-${visitor.user_type}">${visitor.user_type}</span></td>
+            <td>${visitor.college ? getCollegeName(visitor.college) : 'N/A'}</td>
+            <td>${visitor.course || 'N/A'}</td>
+            <td>${visitor.reason || 'N/A'}</td>
+        </tr>
+    `).join('');
+}
+
+function updateStats() {
+    const today = allVisitors.filter(isToday).length;
+    const week = allVisitors.filter(isThisWeek).length;
+    const month = allVisitors.filter(isThisMonth).length;
+    const total = allVisitors.length;
+    
+    elements.todayCount.textContent = today;
+    elements.weekCount.textContent = week;
+    elements.monthCount.textContent = month;
+    elements.totalCount.textContent = total.toLocaleString();
+}
+
+function updateResultCount() {
+    elements.resultCount.textContent = `${filteredVisitors.length} results`;
+}
+
+function updateLastUpdated() {
+    const latest = allVisitors[0];
+    if (latest) {
+        elements.lastUpdated.textContent = `Last updated: ${formatDateTime(latest.created_at)}`;
+    }
+}
+
+function formatDateTime(dateString) {
+    return new Date(dateString).toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function getCollegeName(code) {
+    const colleges = {
+        'gr-school': 'MBA',
+        's-law': 'M.Ed.',
+        'eteeap': 'ETEEAP',
+        'tesda': 'Alt. Learning System',
+        'cir': 'Int\'l Relations',
+        'intr': 'Integrated School',
+        'ca': 'Accountancy',
+        'cas': 'Arts and Sciences',
+        'cag': 'Agriculture',
+        'cba': 'Business Administration',
+        'ccom': 'Communication',
+        'ccrim': 'Criminology',
+        'ced': 'Education',
+        'cea': 'Engineering & Architecture',
+        'cics': 'Informatics & Computing (CICS)',
+        'cm': 'Medicine',
+        'cmt': 'Medical Technology',
+        'cmid': 'Midwifery',
+        'cmus': 'Music',
+        'cn': 'Nursing',
+        'cpt': 'Physical Therapy',
+        'crt': 'Respiratory Therapy'
+    };
+    return colleges[code] || code;
+}
+
+function resetFilters() {
+    elements.dateFilter.value = 'all';
+    elements.reasonFilter.value = '';
+    elements.collegeFilter.value = '';
+    elements.userTypeFilter.value = '';
+    handleDateFilterChange();
+    applyFilters();
+}
+
+function toggleView() {
+    currentView = elements.viewToggle.checked ? 'user' : 'admin';
+    console.log('Switched to', currentView, 'view');
+}
+
+async function logout() {
+    await supabase.auth.signOut();
+}
+
+function showError(message) {
+    elements.tableBody.innerHTML = `
+        <tr class="empty-row">
+            <td colspan="7" style="color: #ef4444;">${message}</td>
+        </tr>
+    `;
+}
