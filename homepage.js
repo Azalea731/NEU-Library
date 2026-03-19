@@ -46,20 +46,23 @@ const coursesByCollege = {
 let userProfile = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    
     const { data: { session } } = await supabaseClient.auth.getSession();
 
-    if (session) {
-        await loadProfile(session.user.id);
+    if (!session) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const { data: { session: retrySession } } = await supabaseClient.auth.getSession();
+        
+        if (!retrySession) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        await loadProfile(retrySession.user.id);
         return;
     }
 
-    supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-            await loadProfile(session.user.id);
-        } else if (event === 'SIGNED_OUT') {
-            window.location.href = 'index.html';
-        }
-    });
+    await loadProfile(session.user.id);
 });
 
 async function loadProfile(userId) {
@@ -78,7 +81,7 @@ async function loadProfile(userId) {
 
     document.getElementById('greetName').textContent = 'Hello, ' + profile.full_name;
 
-    const collegeName = collegeNames[profile.college] || 'Please select your college';
+    const collegeName = collegeNames[profile.college] || profile.college || '—';
     document.getElementById('collegeDisplay').textContent = collegeName;
 
     const courseSelect = document.getElementById('courseSelect');
@@ -171,6 +174,12 @@ function checkInAgain() {
     document.getElementById('successView').classList.add('hidden');
     document.getElementById('checkinView').classList.remove('hidden');
 }
+
+document.getElementById('userViewSwitch').addEventListener('change', function() {
+    if (this.checked) {
+        window.location.href = 'admin.html';
+    }
+});
 
 async function logout() {
     await supabaseClient.auth.signOut();
