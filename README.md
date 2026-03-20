@@ -3,5 +3,6 @@
 - Email: jcesperanza@neu.edu.ph
 - Password: admin123
 
-- neu-library-pi.vercel.app
+- https://neu-library-pi.vercel.app/
+- 
 
