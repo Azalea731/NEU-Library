@@ -128,19 +128,19 @@ select option {
 input[type="text"] {
     width: 100%;
     padding: 14px 16px;
-    background: rgba(255,255,255,0.15);
+    background: white;
     border: 1px solid rgba(255,255,255,0.2);
     border-radius: 12px;
     font-family: 'DM Sans', sans-serif;
     font-size: 0.95em;
-    color: white;
+    color: black;
     outline: none;
     transition: background 0.2s;
 }
 
-input[type="text"]::placeholder { color: rgb(69, 69, 69); }
+input[type="text"]::placeholder { color: black; }
 input[type="text"]:focus {
-    background: rgba(255,255,255,0.22);
+    background: white;
     border-color: rgba(255,255,255,0.4);
 }
 
